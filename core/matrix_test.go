@@ -1,7 +1,7 @@
 package core_test
 
 import (
-	"ebientest/core"
+	"github.com/lijingbo8119/minesweeper-ebiten/core"
 	"fmt"
 	"testing"
 )

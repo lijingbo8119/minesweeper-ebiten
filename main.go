@@ -1,13 +1,13 @@
 package main
 
 import (
-	"ebientest/core"
-	"ebientest/cursor"
-	"ebientest/resource"
-	"ebientest/util"
 	"embed"
 	"github.com/gogf/gf/util/gconv"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/lijingbo8119/minesweeper-ebiten/core"
+	"github.com/lijingbo8119/minesweeper-ebiten/cursor"
+	"github.com/lijingbo8119/minesweeper-ebiten/resource"
+	"github.com/lijingbo8119/minesweeper-ebiten/util"
 	_ "image/png"
 	"log"
 )
@@ -16,10 +16,10 @@ import (
 var images embed.FS
 
 const (
-	MainBoardOffsetX = 4
-	MainBoardOffsetY = 9
-	screenWidth      = 320
-	screenHeight     = 240
+	MainBoardOffsetX = 0
+	MainBoardOffsetY = 0
+	screenWidth      = 160
+	screenHeight     = 160
 )
 
 type Game struct {
@@ -77,7 +77,7 @@ func main() {
 	})
 
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
-	ebiten.SetWindowTitle("Keyboard (Ebiten Demo)")
+	ebiten.SetWindowTitle("Minesweeper")
 
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)

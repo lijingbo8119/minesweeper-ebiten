@@ -1,9 +1,9 @@
 package util
 
 import (
-	"ebientest/core"
-	"ebientest/resource"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/lijingbo8119/minesweeper-ebiten/core"
+	"github.com/lijingbo8119/minesweeper-ebiten/resource"
 )
 
 func GetSquareImage(s *core.Square) *ebiten.Image {

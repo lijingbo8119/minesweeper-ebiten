@@ -1,4 +1,4 @@
-module ebientest
+module github.com/lijingbo8119/minesweeper-ebiten
 
 go 1.16
 
