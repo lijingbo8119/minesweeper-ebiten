@@ -4,12 +4,14 @@ import (
 	"embed"
 	"github.com/gogf/gf/util/gconv"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/lijingbo8119/minesweeper-ebiten/core"
 	"github.com/lijingbo8119/minesweeper-ebiten/cursor"
 	"github.com/lijingbo8119/minesweeper-ebiten/resource"
 	"github.com/lijingbo8119/minesweeper-ebiten/util"
 	_ "image/png"
 	"log"
+	"time"
 )
 
 //go:embed images/*
@@ -28,6 +30,9 @@ type Game struct {
 
 func (this *Game) Update() error {
 	cursor.BindUpdate()
+	if endTime := core.State.GetEndTime(); endTime != nil && time.Now().Sub(*endTime) > 1*time.Second {
+		core.State.SetMatrixParam(30, 16, 99)
+	}
 	return nil
 }
 
@@ -47,8 +52,11 @@ func (this *Game) Draw(screen *ebiten.Image) {
 	op.GeoM.Reset()
 	cursorPosition := cursor.GetPosition()
 	x, y := cursorPosition.X, cursorPosition.Y
+	op.GeoM.Translate(-2, -2)
 	op.GeoM.Translate(gconv.Float64(x), gconv.Float64(y))
 	screen.DrawImage(util.GetCursorImage(core.State.CursorAction), op)
+
+	ebitenutil.DebugPrint(screen, gconv.String(gconv.Int(ebiten.CurrentTPS())))
 }
 
 func (this *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

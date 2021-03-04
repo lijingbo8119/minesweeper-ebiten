@@ -26,6 +26,10 @@ func (this *_state) SetStartTime(t ...*time.Time) {
 	}
 }
 
+func (this *_state) GetEndTime() *time.Time {
+	return this.endTime
+}
+
 func (this *_state) SetEndTime(t ...*time.Time) {
 	if len(t) > 0 {
 		this.endTime = t[0]
