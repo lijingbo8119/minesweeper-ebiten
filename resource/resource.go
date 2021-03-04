@@ -6,9 +6,13 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"image"
 	_ "image/gif"
+	_ "image/png"
 )
 
 type _resources struct {
+	Cursor1 *ebiten.Image
+	Cursor2 *ebiten.Image
+
 	Blank     *ebiten.Image
 	Mousedown *ebiten.Image
 
@@ -64,6 +68,8 @@ func newImageFromFile(name string, fs embed.FS) *ebiten.Image {
 }
 
 func Init(images embed.FS) {
+	Resources.Cursor1 = newImageFromFile("images/cursor1.png", images)
+	Resources.Cursor2 = newImageFromFile("images/cursor2.png", images)
 	Resources.Blank = newImageFromFile("images/blank.gif", images)
 	Resources.Mousedown = newImageFromFile("images/mousedown.gif", images)
 	Resources.Face0 = newImageFromFile("images/face0.gif", images)

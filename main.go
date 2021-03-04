@@ -16,10 +16,10 @@ import (
 var images embed.FS
 
 const (
-	MainBoardOffsetX = 0
-	MainBoardOffsetY = 0
-	screenWidth      = 160
-	screenHeight     = 160
+	MainBoardOffsetX = 10 / 2
+	MainBoardOffsetY = 10 / 2
+	screenWidth      = 480 + 10
+	screenHeight     = 256 + 10
 )
 
 type Game struct {
@@ -43,6 +43,12 @@ func (this *Game) Draw(screen *ebiten.Image) {
 			op.GeoM.Translate(x, y)
 			screen.DrawImage(util.GetSquareImage(s), op)
 		})
+
+	op.GeoM.Reset()
+	cursorPosition := cursor.GetPosition()
+	x, y := cursorPosition.X, cursorPosition.Y
+	op.GeoM.Translate(gconv.Float64(x), gconv.Float64(y))
+	screen.DrawImage(util.GetCursorImage(core.State.CursorAction), op)
 }
 
 func (this *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -54,24 +60,30 @@ var game = &Game{}
 func main() {
 	resource.Init(images)
 
-	core.State.SetMatrixParam(10, 10, 10)
+	ebiten.SetCursorMode(ebiten.CursorModeHidden)
+
+	core.State.SetMatrixParam(30, 16, 99)
 
 	cursor.RegisterEvent(ebiten.MouseButtonLeft, cursor.ActionPress, func(s *cursor.Status) {
+		core.State.CursorAction = cursor.ActionPress
 		i, j := util.Position2Coordinate(gconv.Float64(s.Position.X-MainBoardOffsetX), gconv.Float64(s.Position.Y-MainBoardOffsetY))
 		core.State.MouseState.LeftMouseDown(core.NewCoordinate(i, j))
 	})
 
 	cursor.RegisterEvent(ebiten.MouseButtonLeft, cursor.ActionRelease, func(s *cursor.Status) {
+		core.State.CursorAction = cursor.ActionRelease
 		i, j := util.Position2Coordinate(gconv.Float64(s.Position.X-MainBoardOffsetX), gconv.Float64(s.Position.Y-MainBoardOffsetY))
 		core.State.MouseState.LeftMouseUp(core.NewCoordinate(i, j))
 	})
 
 	cursor.RegisterEvent(ebiten.MouseButtonRight, cursor.ActionPress, func(s *cursor.Status) {
+		core.State.CursorAction = cursor.ActionPress
 		i, j := util.Position2Coordinate(gconv.Float64(s.Position.X-MainBoardOffsetX), gconv.Float64(s.Position.Y-MainBoardOffsetY))
 		core.State.MouseState.RightMouseDown(core.NewCoordinate(i, j))
 	})
 
 	cursor.RegisterEvent(ebiten.MouseButtonRight, cursor.ActionRelease, func(s *cursor.Status) {
+		core.State.CursorAction = cursor.ActionRelease
 		i, j := util.Position2Coordinate(gconv.Float64(s.Position.X-MainBoardOffsetX), gconv.Float64(s.Position.Y-MainBoardOffsetY))
 		core.State.MouseState.RightMouseUp(core.NewCoordinate(i, j))
 	})

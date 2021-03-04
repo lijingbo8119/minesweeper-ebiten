@@ -1,12 +1,12 @@
 package core
 
 import (
-	"sync"
+	"github.com/lijingbo8119/minesweeper-ebiten/cursor"
 	"time"
 )
 
 type _state struct {
-	windowOnce sync.Once
+	CursorAction cursor.Action
 
 	MouseState *MouseState
 
@@ -36,6 +36,8 @@ func (this *_state) SetEndTime(t ...*time.Time) {
 }
 
 func (this *_state) SetMatrixParam(rowsLength int, colsLength int, minesCount int) {
+	this.CursorAction = cursor.ActionRelease
+
 	this.minesCount = minesCount
 	this.Matrix = NewMatrix(rowsLength, colsLength, minesCount)
 	this.SetStartTime(nil)
