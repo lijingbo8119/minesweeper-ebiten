@@ -11,7 +11,6 @@ import (
 	"github.com/lijingbo8119/minesweeper-ebiten/util"
 	_ "image/png"
 	"log"
-	"time"
 )
 
 //go:embed images/*
@@ -19,25 +18,33 @@ var images embed.FS
 
 const (
 	MainBoardOffsetX = 10 / 2
-	MainBoardOffsetY = 10 / 2
+	MainBoardOffsetY = (10 / 2) + 40
 	screenWidth      = 480 + 10
-	screenHeight     = 256 + 10
+	screenHeight     = 256 + 10 + 40
+	faceOffsetX      = 232
+	faceOffsetY      = 10
 )
 
 type Game struct {
 	Matrix *core.Matrix
 }
 
+// 1/60 s
 func (this *Game) Update() error {
 	cursor.BindUpdate()
-	if endTime := core.State.GetEndTime(); endTime != nil && time.Now().Sub(*endTime) > 1*time.Second {
-		core.State.SetMatrixParam(30, 16, 99)
-	}
 	return nil
 }
 
+// 1/60 s
 func (this *Game) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
+
+	util.DrawNumberTime(screen, 10, 10, core.State.GetStartTime(), core.State.GetEndTime())
+	util.DrawNumber(screen, screenWidth-50, 10, core.State.UnmarkedMinesCount)
+
+	op.GeoM.Reset()
+	op.GeoM.Translate(faceOffsetX, faceOffsetY)
+	screen.DrawImage(util.GetFaceImage(core.State.Face), op)
 
 	core.State.Matrix.
 		FindSquares(func(s *core.Square) bool { return true }).
@@ -54,7 +61,7 @@ func (this *Game) Draw(screen *ebiten.Image) {
 	x, y := cursorPosition.X, cursorPosition.Y
 	op.GeoM.Translate(-2, -2)
 	op.GeoM.Translate(gconv.Float64(x), gconv.Float64(y))
-	screen.DrawImage(util.GetCursorImage(core.State.CursorAction), op)
+	//screen.DrawImage(util.GetCursorImage(core.State.CursorAction), op)
 
 	ebitenutil.DebugPrint(screen, gconv.String(gconv.Int(ebiten.CurrentTPS())))
 }
@@ -68,32 +75,73 @@ var game = &Game{}
 func main() {
 	resource.Init(images)
 
-	ebiten.SetCursorMode(ebiten.CursorModeHidden)
+	//ebiten.SetCursorMode(ebiten.CursorModeHidden)
 
-	core.State.SetMatrixParam(30, 16, 99)
+	core.State.Start(30, 16, 99)
 
-	cursor.RegisterEvent(ebiten.MouseButtonLeft, cursor.ActionPress, func(s *cursor.Status) {
+	cursor.RegisterEvent(ebiten.MouseButtonLeft, cursor.ActionPress, func(s *cursor.Status) bool {
+		core.State.CursorAction = cursor.ActionPress
+		if util.IsCursorInWidget(faceOffsetX, faceOffsetY, 26, 26, *s) {
+			core.State.Face.SetStatus(core.FaceStatusSmileMouseDown)
+			return true
+		}
+		return true
+	})
+
+	cursor.RegisterEvent(ebiten.MouseButtonLeft, cursor.ActionRelease, func(s *cursor.Status) bool {
+		core.State.CursorAction = cursor.ActionRelease
+		if util.IsCursorInWidget(faceOffsetX, faceOffsetY, 26, 26, *s) && core.State.Face.FaceStatus == core.FaceStatusSmileMouseDown {
+			core.State.Start(30, 16, 99)
+			return true
+		}
+		if !util.IsCursorInWidget(faceOffsetX, faceOffsetY, 26, 26, *s) && core.State.Face.FaceStatus == core.FaceStatusSmileMouseDown {
+			if core.State.GetEndTime() != nil {
+				core.State.Face.SetStatus(core.FaceStatusDied)
+			} else {
+				core.State.Face.SetStatus(core.FaceStatusSmile)
+			}
+		}
+		return true
+	})
+
+	cursor.RegisterEvent(ebiten.MouseButtonLeft, cursor.ActionPress, func(s *cursor.Status) bool {
 		core.State.CursorAction = cursor.ActionPress
 		i, j := util.Position2Coordinate(gconv.Float64(s.Position.X-MainBoardOffsetX), gconv.Float64(s.Position.Y-MainBoardOffsetY))
+		if i == -1 || j == -1 {
+			return false
+		}
 		core.State.MouseState.LeftMouseDown(core.NewCoordinate(i, j))
+		return true
 	})
 
-	cursor.RegisterEvent(ebiten.MouseButtonLeft, cursor.ActionRelease, func(s *cursor.Status) {
+	cursor.RegisterEvent(ebiten.MouseButtonLeft, cursor.ActionRelease, func(s *cursor.Status) bool {
 		core.State.CursorAction = cursor.ActionRelease
 		i, j := util.Position2Coordinate(gconv.Float64(s.Position.X-MainBoardOffsetX), gconv.Float64(s.Position.Y-MainBoardOffsetY))
+		if i == -1 || j == -1 {
+			return false
+		}
 		core.State.MouseState.LeftMouseUp(core.NewCoordinate(i, j))
+		return true
 	})
 
-	cursor.RegisterEvent(ebiten.MouseButtonRight, cursor.ActionPress, func(s *cursor.Status) {
+	cursor.RegisterEvent(ebiten.MouseButtonRight, cursor.ActionPress, func(s *cursor.Status) bool {
 		core.State.CursorAction = cursor.ActionPress
 		i, j := util.Position2Coordinate(gconv.Float64(s.Position.X-MainBoardOffsetX), gconv.Float64(s.Position.Y-MainBoardOffsetY))
+		if i == -1 || j == -1 {
+			return false
+		}
 		core.State.MouseState.RightMouseDown(core.NewCoordinate(i, j))
+		return true
 	})
 
-	cursor.RegisterEvent(ebiten.MouseButtonRight, cursor.ActionRelease, func(s *cursor.Status) {
+	cursor.RegisterEvent(ebiten.MouseButtonRight, cursor.ActionRelease, func(s *cursor.Status) bool {
 		core.State.CursorAction = cursor.ActionRelease
 		i, j := util.Position2Coordinate(gconv.Float64(s.Position.X-MainBoardOffsetX), gconv.Float64(s.Position.Y-MainBoardOffsetY))
+		if i == -1 || j == -1 {
+			return false
+		}
 		core.State.MouseState.RightMouseUp(core.NewCoordinate(i, j))
+		return true
 	})
 
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)

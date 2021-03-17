@@ -18,3 +18,12 @@ const (
 	SquareTypeMine
 )
 
+type FaceStatus int
+
+const (
+	FaceStatusSmile FaceStatus = iota
+	FaceStatusSmileMouseDown
+	FaceStatusOps
+	FaceStatusDied
+	FaceStatusWin
+)

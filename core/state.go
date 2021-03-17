@@ -10,11 +10,17 @@ type _state struct {
 
 	MouseState *MouseState
 
-	minesCount int
-	Matrix     *Matrix
+	UnmarkedMinesCount int
+	Matrix             *Matrix
+
+	Face *Face
 
 	startTime *time.Time
 	endTime   *time.Time
+}
+
+func (this *_state) GetStartTime() *time.Time {
+	return this.startTime
 }
 
 func (this *_state) SetStartTime(t ...*time.Time) {
@@ -39,10 +45,12 @@ func (this *_state) SetEndTime(t ...*time.Time) {
 	}
 }
 
-func (this *_state) SetMatrixParam(rowsLength int, colsLength int, minesCount int) {
+func (this *_state) Start(rowsLength int, colsLength int, minesCount int) {
+	this.Face = &Face{FaceStatusSmile}
+
 	this.CursorAction = cursor.ActionRelease
 
-	this.minesCount = minesCount
+	this.UnmarkedMinesCount = minesCount
 	this.Matrix = NewMatrix(rowsLength, colsLength, minesCount)
 	this.SetStartTime(nil)
 	this.SetEndTime(nil)
@@ -63,6 +71,7 @@ func (this *_state) leftMouseDownHandler(c Coordinate) {
 	if this.endTime != nil {
 		return
 	}
+	this.Face.SetStatus(FaceStatusOps)
 	this.Matrix.
 		FindSquares(func(square *Square) bool { return square.SquareCoordinate.Equal(c) && square.SquareStatus == SquareStatusClosed }).
 		Each(func(s *Square) { s.setStatus(SquareStatusMouseDown) })
@@ -75,12 +84,13 @@ func (this *_state) leftMouseUpHandler(c Coordinate) {
 	if this.startTime == nil {
 		this.SetStartTime()
 	}
-
+	this.Face.SetStatus(FaceStatusSmile)
 	this.Matrix.
 		FindSquares(func(square *Square) bool { return square.SquareCoordinate.Equal(c) && square.SquareStatus == SquareStatusMouseDown }).
 		Each(func(s *Square) {
 			if res := s.open(true); !res {
 				this.SetEndTime()
+				this.Face.SetStatus(FaceStatusDied)
 			}
 		})
 }
@@ -89,6 +99,7 @@ func (this *_state) rightMouseDownHandler(c Coordinate) {
 	if this.endTime != nil {
 		return
 	}
+	this.Face.SetStatus(FaceStatusOps)
 }
 
 func (this *_state) rightMouseUpHandler(c Coordinate) {
@@ -98,10 +109,11 @@ func (this *_state) rightMouseUpHandler(c Coordinate) {
 	if this.startTime == nil {
 		this.SetStartTime()
 	}
-
+	this.Face.SetStatus(FaceStatusSmile)
 	this.Matrix.
 		FindSquares(func(square *Square) bool { return square.SquareCoordinate.Equal(c) }).
 		Each(func(s *Square) { s.mark() })
+	this.UnmarkedMinesCount = len(this.Matrix.FindSquares(func(square *Square) bool { return square.SquareType == SquareTypeMine })) - len(this.Matrix.FindSquares(func(square *Square) bool { return square.SquareStatus == SquareStatusMarkedFlag }))
 }
 
 func (this *_state) leftRightMouseDownHandler(c Coordinate) {

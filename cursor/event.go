@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-type Event func(s *Status)
+type Event func(s *Status) bool
 
 type events []Event
 
