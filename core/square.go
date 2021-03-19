@@ -52,7 +52,7 @@ func (this *Square) mark() {
 	this.setStatus(SquareStatusMarkedFlag)
 }
 
-func (this *Square) openAroundSquares() {
+func (this *Square) openAroundSquares() bool {
 	markedWrongMines := this.AroundSquares.
 		Filter(func(s *Square) bool { return s.SquareType == SquareTypeNormal && s.SquareStatus == SquareStatusMarkedFlag })
 	if len(markedWrongMines) > 0 {
@@ -60,17 +60,18 @@ func (this *Square) openAroundSquares() {
 		this.AroundSquares.
 			Filter(func(s *Square) bool { return s.SquareType == SquareTypeMine && (s.SquareStatus == SquareStatusClosed || s.SquareStatus == SquareStatusMouseDown) }).
 			Each(func(s *Square) { s.setStatus(SquareStatusOpened) })
-		return
+		return false
 	}
 
 	if unmarkedMines := this.AroundSquares.Filter(func(s *Square) bool {
 		return s.SquareType == SquareTypeMine && s.SquareStatus != SquareStatusMarkedFlag
 	}); len(unmarkedMines) > 0 {
-		return
+		return true
 	}
 	for _, s := range this.AroundSquares {
 		s.open(false)
 	}
+	return true
 }
 
 func newSquare(t SquareType) *Square {

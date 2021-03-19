@@ -35,7 +35,7 @@ func (this *Game) Update() error {
 	return nil
 }
 
-// 1/60 s
+// 1/60\ s
 func (this *Game) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 

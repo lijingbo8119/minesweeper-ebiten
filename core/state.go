@@ -156,7 +156,10 @@ func (this *_state) leftRightMouseUpHandler(c Coordinate) {
 
 	switch square.SquareStatus {
 	case SquareStatusOpened:
-		square.openAroundSquares()
+		if !square.openAroundSquares() {
+			this.SetEndTime()
+			this.Face.SetStatus(FaceStatusDied)
+		}
 		break
 	default:
 		return
