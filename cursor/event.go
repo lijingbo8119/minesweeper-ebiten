@@ -33,3 +33,9 @@ func RegisterEvent(b ebiten.MouseButton, a Action, f Event) {
 
 	eventsInstance[b][a] = append(eventsInstance[b][a], f)
 }
+
+func CleanAllEvent() {
+	eventMu.Lock()
+	defer eventMu.Unlock()
+	eventsInstance = map[ebiten.MouseButton]map[Action]events{}
+}

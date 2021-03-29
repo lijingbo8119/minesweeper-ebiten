@@ -13,4 +13,3 @@ type Status struct {
 func newStatus(b ebiten.MouseButton, p Position, a Action) *Status {
 	return &Status{Button: b, Position: p, Action: a}
 }
-
