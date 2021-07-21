@@ -133,7 +133,6 @@ func (receiver MainBoard) draw(screen *ebiten.Image, game *Game) {
 	x, y := cursorPosition.X, cursorPosition.Y
 	op.GeoM.Translate(-2, -2)
 	op.GeoM.Translate(gconv.Float64(x), gconv.Float64(y))
-	//screen.DrawImage(util.GetCursorImage(core.State.CursorAction), op)
 
 	ebitenutil.DebugPrint(screen, gconv.String(gconv.Int(ebiten.CurrentTPS())))
 }

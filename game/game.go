@@ -2,6 +2,7 @@ package game
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/lijingbo8119/minesweeper-ebiten/core"
 	"github.com/lijingbo8119/minesweeper-ebiten/cursor"
 )
 
@@ -29,4 +30,12 @@ func (this *Game) Draw(screen *ebiten.Image) {
 
 func (this *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return ScreenWidth, ScreenHeight
+}
+
+func NewGame(scene Scene) *Game {
+	instance := &Game{
+		Scene: scene,
+	}
+	core.State.Start(30, 16, 99)
+	return instance
 }
